@@ -1,44 +1,29 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/*.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "web/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/health",
-      "dest": "api/health.py"
-    },
-    {
-      "src": "/api/detect", 
-      "dest": "api/detect.py"
-    },
-    {
-      "src": "/",
-      "dest": "web/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "web/$1"
-    }
-  ],
   "functions": {
-    "api/health.py": {
+    "api/detect.py": {
       "runtime": "python3.9"
     },
-    "api/detect.py": {
+    "api/health.py": {
       "runtime": "python3.9"
     }
   },
-  "env": {
-    "GROQ_API_KEY": "@groq_api_key",
-    "SUPABASE_URL": "@supabase_url",
-    "SUPABASE_KEY": "@supabase_key"
-  }
+  "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.py"
+    },
+    {
+      "src": "/api/detect",
+      "dest": "/api/detect.py"
+    },
+    {
+      "src": "/",
+      "dest": "/web/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/web/$1"
+    }
+  ]
 }

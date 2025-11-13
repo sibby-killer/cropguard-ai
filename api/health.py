@@ -1,12 +1,9 @@
-"""
-Vercel serverless function for health check
-"""
 import json
 import os
 from datetime import datetime
 
 def handler(request):
-    """Handle health check requests"""
+    """Vercel serverless function for health check"""
     
     headers = {
         'Access-Control-Allow-Origin': '*',
@@ -22,7 +19,6 @@ def handler(request):
             'body': ''
         }
     
-    # Health check data
     health_data = {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -31,10 +27,7 @@ def handler(request):
             "supabase_configured": bool(os.environ.get('SUPABASE_URL'))
         },
         "version": "2.0.0",
-        "endpoints": [
-            "/api/health",
-            "/api/detect"
-        ]
+        "endpoints": ["/api/health", "/api/detect"]
     }
     
     return {
@@ -42,7 +35,3 @@ def handler(request):
         'headers': headers,
         'body': json.dumps(health_data, indent=2)
     }
-
-# Export for Vercel
-def main(request):
-    return handler(request)
