@@ -105,7 +105,7 @@ Supabase (Storage + Database)
 
 ### Step 1: Clone Repository
 ```bash
-git clone https://github.com/yourusername/cropguard-ai.git
+git clone https://github.com/sibby-killer/cropguard-ai.git
 cd cropguard-ai
 ```
 
@@ -601,14 +601,14 @@ This project contributes to **UN Sustainable Development Goal 2 (Zero Hunger)** 
 
 ## 📧 Contact & Support
 
-- **Project Lead:** [Your Name](mailto:your.email@example.com)
-- **GitHub Issues:** [Report bugs or request features](https://github.com/yourusername/cropguard-ai/issues)
-- **Documentation:** [Wiki pages](https://github.com/yourusername/cropguard-ai/wiki)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/cropguard-ai/discussions)
+- **Project Lead:** Sibby Killer (alfred.dev8@gmail.com)
+- **GitHub Issues:** [Report bugs or request features](https://github.com/sibby-killer/cropguard-ai/issues)
+- **Documentation:** [Wiki pages](https://github.com/sibby-killer/cropguard-ai/wiki)
+- **Discussions:** [GitHub Discussions](https://github.com/sibby-killer/cropguard-ai/discussions)
 
 ### Demo & Resources
 - **🎥 Demo Video:** [Watch on YouTube](https://youtube.com/watch?v=your-demo)
-- **📱 APK Download:** [Latest Release](https://github.com/yourusername/cropguard-ai/releases)
+- **📱 APK Download:** [Latest Release](https://github.com/sibby-killer/cropguard-ai/releases)
 - **📋 API Docs:** [Postman Collection](https://documenter.getpostman.com/your-collection)
 
 ---
