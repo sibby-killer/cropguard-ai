@@ -1,0 +1,53 @@
+name: cropguard_ai
+description: AI-powered plant disease detection system for farmers
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # UI & Design
+  material_color_utilities: ^0.11.1
+  google_fonts: ^6.1.0
+  flutter_spinkit: ^5.2.0
+  
+  # Image & Camera
+  camera: ^0.10.5
+  image_picker: ^1.0.4
+  cached_network_image: ^3.3.0
+  
+  # HTTP & API
+  http: ^1.1.0
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # Database
+  supabase_flutter: ^2.0.0
+  
+  # Utils
+  intl: ^0.18.1
+  uuid: ^4.2.1
+  shared_preferences: ^2.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon.png"
+  adaptive_icon_background: "#4CAF50"
+  adaptive_icon_foreground: "assets/images/icon_foreground.png"

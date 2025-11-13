@@ -1,6 +1,6 @@
 # Core
 python-dotenv==1.0.0
-Pillow==10.1.0
+Pillow==10.4.0
 
 # API
 flask==3.0.0
