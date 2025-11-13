@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropGuard AI - Plant Disease Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            color: #2E7D32;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            color: #2E7D32;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #4CAF50;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .upload-area:hover {
+            background-color: #f8fffe;
+            border-color: #2E7D32;
+        }
+        
+        .upload-area.dragover {
+            background-color: #e8f5e8;
+            border-color: #2E7D32;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .crop-input {
+            margin: 20px 0;
+        }
+        
+        .crop-input label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .crop-input input, .crop-input select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .crop-input input:focus, .crop-input select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .analyze-btn {
+            background: linear-gradient(45deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .disease-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+        
+        .confidence {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .recommendation {
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .download-links {
+            margin: 20px 0;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            margin: 5px 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .github-link {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌱</div>
+            <h1>CropGuard AI</h1>
+            <p class="subtitle">AI-Powered Plant Disease Detection System</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <h3>Easy Upload</h3>
+                <p>Upload images in JPEG or PNG format</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Analysis</h3>
+                <p>Advanced AI detects diseases instantly</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💡</div>
+                <h3>Treatment Tips</h3>
+                <p>Get actionable treatment recommendations</p>
+            </div>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Click to upload or drag & drop</div>
+            <div class="upload-hint">Supports JPEG, JPG, PNG files</div>
+            <input type="file" id="imageInput" accept="image/jpeg,image/jpg,image/png" style="display: none;">
+        </div>
+        
+        <img id="previewImage" class="preview-image" alt="Preview">
+        
+        <div class="crop-input">
+            <label for="cropSelect">Select Plant Type:</label>
+            <select id="cropSelect">
+                <option value="tomato">Tomato</option>
+                <option value="potato">Potato</option>
+                <option value="corn">Corn</option>
+                <option value="pepper">Pepper</option>
+                <option value="apple">Apple</option>
+                <option value="grape">Grape</option>
+                <option value="beans">Beans</option>
+                <option value="wheat">Wheat</option>
+                <option value="rice">Rice</option>
+                <option value="custom">Custom Plant...</option>
+            </select>
+        </div>
+        
+        <div class="crop-input" id="customCropDiv" style="display: none;">
+            <label for="customCrop">Enter Plant Name:</label>
+            <input type="text" id="customCrop" placeholder="e.g., Mango, Banana, Spinach...">
+        </div>
+        
+        <button class="analyze-btn" id="analyzeBtn" disabled>
+            <span>🔍</span> Analyze Disease
+        </button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your plant image...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result" id="result">
+            <div class="disease-name" id="diseaseName"></div>
+            <div class="confidence" id="confidence"></div>
+            <div class="recommendation" id="recommendation"></div>
+        </div>
+        
+        <div class="download-links">
+            <h3>Download Mobile App</h3>
+            <a href="#" class="download-btn">📱 Android APK</a>
+            <a href="#" class="download-btn">🍎 iOS (Coming Soon)</a>
+        </div>
+        
+        <div class="footer">
+            <p>Open Source • <a href="https://github.com/sibikrishna/cropguard-ai" class="github-link">View on GitHub</a></p>
+            <p>Powered by Groq AI • Built with ❤️ for farmers</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const previewImage = document.getElementById('previewImage');
+        const cropSelect = document.getElementById('cropSelect');
+        const customCropDiv = document.getElementById('customCropDiv');
+        const customCrop = document.getElementById('customCrop');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        
+        let selectedFile = null;
+        
+        // API Configuration - automatically detects environment
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:8000/api' 
+            : `${window.location.origin}/api`;
+        
+        // Upload area interactions
+        uploadArea.addEventListener('click', () => imageInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Crop type selection
+        cropSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                customCropDiv.style.display = 'block';
+                customCrop.required = true;
+            } else {
+                customCropDiv.style.display = 'none';
+                customCrop.required = false;
+            }
+            updateAnalyzeButton();
+        });
+        
+        customCrop.addEventListener('input', updateAnalyzeButton);
+        
+        function handleFile(file) {
+            if (!file.type.match('image/(jpeg|jpg|png)')) {
+                showError('Please select a JPEG or PNG image file.');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File size must be less than 10MB.');
+                return;
+            }
+            
+            selectedFile = file;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            updateAnalyzeButton();
+            hideError();
+        }
+        
+        function updateAnalyzeButton() {
+            const hasImage = selectedFile !== null;
+            const hasValidCrop = cropSelect.value !== 'custom' || 
+                              (cropSelect.value === 'custom' && customCrop.value.trim() !== '');
+            analyzeBtn.disabled = !(hasImage && hasValidCrop);
+        }
+        
+        analyzeBtn.addEventListener('click', analyzeImage);
+        
+        async function analyzeImage() {
+            if (!selectedFile) return;
+            
+            const cropType = cropSelect.value === 'custom' ? 
+                           customCrop.value.trim() : cropSelect.value;
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            hideError();
+            analyzeBtn.disabled = true;
+            
+            try {
+                const base64 = await fileToBase64(selectedFile);
+                
+                const response = await fetch(`${API_BASE}/detect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image: base64,
+                        crop_type: cropType
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(data);
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        }
+        
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function showResult(data) {
+            document.getElementById('diseaseName').textContent = data.disease || 'Unknown';
+            document.getElementById('confidence').textContent = 
+                `Confidence: ${data.confidence || 0}%`;
+            document.getElementById('recommendation').textContent = 
+                data.ai_recommendation || 'No specific recommendations available.';
+            
+            result.style.display = 'block';
+        }
+        
+        function showError(message) {
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+        
+        function hideError() {
+            error.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

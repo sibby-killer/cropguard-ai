@@ -12,6 +12,7 @@ import numpy as np
 def decode_base64_image(base64_string):
     """
     Decode base64 image string to PIL Image
+    Supports JPEG, PNG, and other common formats
     
     Args:
         base64_string: Base64 encoded image string
@@ -29,6 +30,18 @@ def decode_base64_image(base64_string):
         
         # Convert to PIL Image
         image = Image.open(io.BytesIO(image_bytes))
+        
+        # Ensure we can handle all common formats
+        # Convert to RGB if needed (handles JPEG, PNG, etc.)
+        if image.mode in ['RGBA', 'LA', 'P']:
+            # Create a white background for transparent images
+            rgb_image = Image.new('RGB', image.size, (255, 255, 255))
+            if image.mode == 'P':
+                image = image.convert('RGBA')
+            rgb_image.paste(image, mask=image.split()[-1] if image.mode in ['RGBA', 'LA'] else None)
+            image = rgb_image
+        elif image.mode != 'RGB':
+            image = image.convert('RGB')
         
         return image
     

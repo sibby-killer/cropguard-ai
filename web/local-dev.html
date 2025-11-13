@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropGuard AI - Local Development</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            color: #2E7D32;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            color: #2E7D32;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        
+        .dev-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .dev-notice h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+        
+        .upload-area {
+            border: 3px dashed #4CAF50;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .upload-area:hover {
+            background-color: #f8fffe;
+            border-color: #2E7D32;
+        }
+        
+        .upload-area.dragover {
+            background-color: #e8f5e8;
+            border-color: #2E7D32;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .crop-input {
+            margin: 20px 0;
+        }
+        
+        .crop-input label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            text-align: left;
+        }
+        
+        .crop-input input, .crop-input select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .crop-input input:focus, .crop-input select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .analyze-btn {
+            background: linear-gradient(45deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .analyze-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .disease-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+        
+        .disease-name.healthy {
+            color: #2E7D32;
+        }
+        
+        .confidence {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .recommendation {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .symptoms-list {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .symptoms-list h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .symptoms-list ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+            text-align: left;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .api-config {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .api-config h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        .api-config input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .test-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .test-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .test-btn:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌱</div>
+            <h1>CropGuard AI</h1>
+            <p class="subtitle">Local Development Version</p>
+        </div>
+        
+        <div class="dev-notice">
+            <h3>🛠️ Development Mode</h3>
+            <p>This is the local development version. Configure your API endpoint below to test with your local backend or use the live API.</p>
+        </div>
+        
+        <div class="api-config">
+            <h4>API Configuration</h4>
+            <input type="text" id="apiBaseUrl" placeholder="Enter API base URL" value="http://localhost:8000/api">
+            <div class="test-buttons">
+                <button class="test-btn" onclick="testHealthEndpoint()">🔍 Test Health</button>
+                <button class="test-btn" onclick="useLocalAPI()">🏠 Local API</button>
+                <button class="test-btn" onclick="useLiveAPI()">🌐 Live API</button>
+            </div>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Click to upload or drag & drop</div>
+            <div class="upload-hint">Supports JPEG, JPG, PNG files (max 10MB)</div>
+            <input type="file" id="imageInput" accept="image/jpeg,image/jpg,image/png" style="display: none;">
+        </div>
+        
+        <img id="previewImage" class="preview-image" alt="Preview">
+        
+        <div class="crop-input">
+            <label for="cropSelect">Select Plant Type:</label>
+            <select id="cropSelect">
+                <option value="tomato">Tomato</option>
+                <option value="potato">Potato</option>
+                <option value="corn">Corn</option>
+                <option value="pepper">Pepper</option>
+                <option value="apple">Apple</option>
+                <option value="grape">Grape</option>
+                <option value="beans">Beans</option>
+                <option value="wheat">Wheat</option>
+                <option value="rice">Rice</option>
+                <option value="lettuce">Lettuce</option>
+                <option value="cucumber">Cucumber</option>
+                <option value="custom">Custom Plant...</option>
+            </select>
+        </div>
+        
+        <div class="crop-input" id="customCropDiv" style="display: none;">
+            <label for="customCrop">Enter Plant Name:</label>
+            <input type="text" id="customCrop" placeholder="e.g., Mango, Banana, Spinach...">
+        </div>
+        
+        <button class="analyze-btn" id="analyzeBtn" disabled>
+            <span>🔍</span> Analyze Disease
+        </button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your plant image...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result" id="result">
+            <div class="disease-name" id="diseaseName"></div>
+            <div class="confidence" id="confidence"></div>
+            <div class="recommendation" id="recommendation"></div>
+            <div class="symptoms-list" id="symptomsList" style="display: none;">
+                <h4>Observed Symptoms:</h4>
+                <ul id="symptomsUl"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const previewImage = document.getElementById('previewImage');
+        const cropSelect = document.getElementById('cropSelect');
+        const customCropDiv = document.getElementById('customCropDiv');
+        const customCrop = document.getElementById('customCrop');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        const apiBaseUrl = document.getElementById('apiBaseUrl');
+        
+        let selectedFile = null;
+        
+        // API Configuration functions
+        function useLocalAPI() {
+            apiBaseUrl.value = 'http://localhost:8000/api';
+            showMessage('Switched to local API (http://localhost:8000/api)', 'info');
+        }
+        
+        function useLiveAPI() {
+            apiBaseUrl.value = 'https://cropguard-oji3662ur-sibby-killers-projects.vercel.app/api';
+            showMessage('Switched to live API', 'info');
+        }
+        
+        async function testHealthEndpoint() {
+            const baseUrl = apiBaseUrl.value.trim();
+            if (!baseUrl) {
+                showError('Please enter an API base URL');
+                return;
+            }
+            
+            try {
+                showMessage('Testing health endpoint...', 'info');
+                const response = await fetch(`${baseUrl}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage(`✅ API is ${data.status}! Groq: ${data.environment?.groq_configured ? '✅' : '❌'}, Supabase: ${data.environment?.supabase_configured ? '✅' : '❌'}`, 'success');
+                } else {
+                    showError(`❌ API Error: ${data.error || 'Unknown error'}`);
+                }
+            } catch (err) {
+                showError(`❌ Connection failed: ${err.message}. Make sure the backend is running.`);
+            }
+        }
+        
+        function showMessage(message, type = 'info') {
+            const errorDiv = document.getElementById('error');
+            errorDiv.style.display = 'block';
+            errorDiv.style.background = type === 'success' ? '#d4edda' : type === 'info' ? '#d1ecf1' : '#ffebee';
+            errorDiv.style.color = type === 'success' ? '#155724' : type === 'info' ? '#0c5460' : '#c62828';
+            errorDiv.textContent = message;
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Upload area interactions
+        uploadArea.addEventListener('click', () => imageInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Crop type selection
+        cropSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                customCropDiv.style.display = 'block';
+                customCrop.required = true;
+            } else {
+                customCropDiv.style.display = 'none';
+                customCrop.required = false;
+            }
+            updateAnalyzeButton();
+        });
+        
+        customCrop.addEventListener('input', updateAnalyzeButton);
+        
+        function handleFile(file) {
+            console.log('Selected file:', file.name, 'Type:', file.type, 'Size:', file.size);
+            
+            if (!file.type.match('image/(jpeg|jpg|png)')) {
+                showError('Please select a JPEG or PNG image file.');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File size must be less than 10MB.');
+                return;
+            }
+            
+            selectedFile = file;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            updateAnalyzeButton();
+            hideError();
+        }
+        
+        function updateAnalyzeButton() {
+            const hasImage = selectedFile !== null;
+            const hasValidCrop = cropSelect.value !== 'custom' || 
+                              (cropSelect.value === 'custom' && customCrop.value.trim() !== '');
+            analyzeBtn.disabled = !(hasImage && hasValidCrop);
+        }
+        
+        analyzeBtn.addEventListener('click', analyzeImage);
+        
+        async function analyzeImage() {
+            if (!selectedFile) return;
+            
+            const cropType = cropSelect.value === 'custom' ? 
+                           customCrop.value.trim() : cropSelect.value;
+                           
+            const baseUrl = apiBaseUrl.value.trim();
+            if (!baseUrl) {
+                showError('Please configure the API base URL');
+                return;
+            }
+            
+            console.log('Starting analysis with crop type:', cropType);
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            hideError();
+            analyzeBtn.disabled = true;
+            
+            try {
+                const base64 = await fileToBase64(selectedFile);
+                console.log('Image converted to base64, length:', base64.length);
+                
+                const requestData = {
+                    image: base64,
+                    crop_type: cropType,
+                    user_id: 'local-dev-user'
+                };
+                
+                console.log('Sending request to:', `${baseUrl}/detect`);
+                console.log('Request data keys:', Object.keys(requestData));
+                
+                const response = await fetch(`${baseUrl}/detect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    showResult(data);
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+            } catch (err) {
+                console.error('Analysis error:', err);
+                showError(`Analysis failed: ${err.message}`);
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        }
+        
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function showResult(data) {
+            console.log('Showing result:', data);
+            
+            const diseaseNameEl = document.getElementById('diseaseName');
+            const confidenceEl = document.getElementById('confidence');
+            const recommendationEl = document.getElementById('recommendation');
+            const symptomsListEl = document.getElementById('symptomsList');
+            const symptomsUlEl = document.getElementById('symptomsUl');
+            
+            // Display disease name
+            const diseaseName = data.disease || 'Unknown Disease';
+            diseaseNameEl.textContent = diseaseName;
+            diseaseNameEl.className = diseaseName.toLowerCase().includes('healthy') ? 
+                'disease-name healthy' : 'disease-name';
+            
+            // Display confidence
+            const confidence = data.confidence || 0;
+            confidenceEl.textContent = `Confidence: ${confidence}%`;
+            
+            // Display AI recommendation
+            const recommendation = data.ai_recommendation || 
+                                 data.recommendation || 
+                                 'No specific recommendations available.';
+            recommendationEl.textContent = recommendation;
+            
+            // Display symptoms if available
+            if (data.symptoms && Array.isArray(data.symptoms) && data.symptoms.length > 0) {
+                symptomsUlEl.innerHTML = '';
+                data.symptoms.forEach(symptom => {
+                    const li = document.createElement('li');
+                    li.textContent = symptom;
+                    symptomsUlEl.appendChild(li);
+                });
+                symptomsListEl.style.display = 'block';
+            } else {
+                symptomsListEl.style.display = 'none';
+            }
+            
+            result.style.display = 'block';
+        }
+        
+        function showError(message) {
+            console.error('Error:', message);
+            error.textContent = message;
+            error.style.display = 'block';
+            error.style.background = '#ffebee';
+            error.style.color = '#c62828';
+        }
+        
+        function hideError() {
+            error.style.display = 'none';
+        }
+        
+        // Initialize
+        updateAnalyzeButton();
+        
+        console.log('Local development version loaded');
+        console.log('Available endpoints:', ['health', 'detect']);
+    </script>
+</body>
+</html>

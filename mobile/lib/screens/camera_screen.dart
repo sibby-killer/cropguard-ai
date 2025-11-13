@@ -23,6 +23,8 @@ class _CameraScreenState extends State<CameraScreen> {
   File? _selectedImage;
   String _selectedCrop = 'Tomato';
   bool _isAnalyzing = false;
+  bool _isCustomCrop = false;
+  final TextEditingController _customCropController = TextEditingController();
 
   final List<String> _crops = [
     'Tomato',
@@ -31,6 +33,12 @@ class _CameraScreenState extends State<CameraScreen> {
     'Pepper',
     'Apple',
     'Grape',
+    'Beans',
+    'Wheat',
+    'Rice',
+    'Cucumber',
+    'Lettuce',
+    'Custom Plant...',
   ];
 
   @override
@@ -130,12 +138,34 @@ class _CameraScreenState extends State<CameraScreen> {
                     if (newValue != null) {
                       setState(() {
                         _selectedCrop = newValue;
+                        _isCustomCrop = newValue == 'Custom Plant...';
+                        if (!_isCustomCrop) {
+                          _customCropController.clear();
+                        }
                       });
                     }
                   },
                 ),
               ),
             ),
+            
+            // Custom Crop Input (show when "Custom Plant..." is selected)
+            if (_isCustomCrop) ...[
+              const SizedBox(height: 16),
+              TextField(
+                controller: _customCropController,
+                decoration: InputDecoration(
+                  labelText: 'Enter Plant Name',
+                  hintText: 'e.g., Mango, Banana, Spinach...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  prefixIcon: const Icon(Icons.local_florist),
+                ),
+                style: GoogleFonts.poppins(fontSize: 16),
+                textCapitalization: TextCapitalization.words,
+              ),
+            ],
             
             const SizedBox(height: 24),
             
@@ -178,7 +208,7 @@ class _CameraScreenState extends State<CameraScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _selectedImage != null && !_isAnalyzing ? _analyzeImage : null,
+                onPressed: _selectedImage != null && !_isAnalyzing && _canAnalyze() ? _analyzeImage : null,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   shape: RoundedRectangleBorder(
@@ -278,9 +308,10 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       final XFile? image = await _picker.pickImage(
         source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        imageQuality: 90,
+        preferredCameraDevice: CameraDevice.rear,
       );
       
       if (image != null) {
@@ -296,15 +327,35 @@ class _CameraScreenState extends State<CameraScreen> {
   Future<void> _analyzeImage() async {
     if (_selectedImage == null) return;
 
+    // Validate custom crop input
+    String finalCropType = _selectedCrop;
+    if (_isCustomCrop) {
+      if (_customCropController.text.trim().isEmpty) {
+        _showErrorSnackBar('Please enter a plant name');
+        return;
+      }
+      finalCropType = _customCropController.text.trim();
+    }
+
     setState(() {
       _isAnalyzing = true;
     });
 
     try {
-      // Convert image to base64
+      // Convert image to base64 with proper format detection
       final bytes = await _selectedImage!.readAsBytes();
       final base64Image = base64Encode(bytes);
-      final dataUri = 'data:image/jpeg;base64,$base64Image';
+      
+      // Detect image format from file extension or header
+      String imageFormat = 'jpeg';
+      String fileName = _selectedImage!.path.toLowerCase();
+      if (fileName.endsWith('.png')) {
+        imageFormat = 'png';
+      } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+        imageFormat = 'jpeg';
+      }
+      
+      final dataUri = 'data:image/$imageFormat;base64,$base64Image';
 
       // Get user ID
       final authService = context.read<AuthService>();
@@ -314,7 +365,7 @@ class _CameraScreenState extends State<CameraScreen> {
       final apiService = context.read<ApiService>();
       final result = await apiService.detectDisease(
         imageBase64: dataUri,
-        cropType: _selectedCrop,
+        cropType: finalCropType,
         userId: userId,
       );
 
@@ -341,6 +392,13 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
+  bool _canAnalyze() {
+    if (_isCustomCrop) {
+      return _customCropController.text.trim().isNotEmpty;
+    }
+    return true;
+  }
+
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -349,5 +407,11 @@ class _CameraScreenState extends State<CameraScreen> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _customCropController.dispose();
+    super.dispose();
   }
 }

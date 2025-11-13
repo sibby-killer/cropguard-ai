@@ -1,5 +1,18 @@
 # 🌱 CropGuard AI - Plant Disease Detection System
 
+## 🌐 Live Demo
+**Try it now:** [https://cropguard-ai.vercel.app](https://cropguard-ai.vercel.app)
+
+📱 **Download Mobile App:** [Android APK](https://github.com/sibby-killer/cropguard-ai/releases/latest/download/app-release.apk) | [All Releases](https://github.com/sibby-killer/cropguard-ai/releases)
+
+## 🎯 What's New in Latest Update
+
+✅ **JPEG & PNG Support** - Upload any image format  
+✅ **Custom Plant Names** - Not limited to predefined crops  
+✅ **Enhanced Camera** - Better image quality and format detection  
+✅ **Web Version Live** - Try instantly in your browser  
+✅ **Mobile App Ready** - Download APK or build from source
+
 ![CropGuard AI Banner](https://via.placeholder.com/800x200/4CAF50/FFFFFF?text=CropGuard+AI+-+Protect+Your+Crops)
 
 ## 📋 Table of Contents
@@ -30,13 +43,15 @@ CropGuard AI is a cutting-edge mobile application that empowers farmers with AI-
 
 ## ✨ Features
 
-- **🤖 AI-Powered Detection:** Uses Groq Vision API (llama-3.2-90b-vision-preview) for disease identification
-- **⚡ Real-Time Analysis:** Get results in under 5 seconds
-- **📱 Mobile-First Design:** Flutter app optimized for Android and iOS
-- **🌾 Multi-Crop Support:** Covers Tomato, Potato, Corn, Pepper, Apple, and Grape
-- **📊 Detailed Reports:** Comprehensive disease information with symptoms, treatment, and prevention
-- **📚 Scan History:** Cloud-based storage with Supabase for tracking past diagnoses
-- **🌐 Offline-Ready:** Designed for future offline capability
+- **🌐 Web & Mobile Access:** Try instantly in browser or download mobile app
+- **📸 Multiple Image Formats:** Supports JPEG, PNG, and live camera capture
+- **🌱 Custom Plant Names:** Enter any plant type - not limited to predefined crops
+- **🤖 Advanced AI Detection:** Uses Groq Vision API (llama-3.2-90b-vision-preview) for accurate identification
+- **⚡ Instant Results:** Get analysis in under 5 seconds with confidence scores
+- **💡 Smart Recommendations:** Detailed treatment and prevention strategies
+- **📱 Cross-Platform:** Android app available, iOS coming soon
+- **📚 Scan History:** Cloud-based storage for tracking plant health over time (mobile app)
+- **🔒 Privacy-Focused:** Secure image processing and data handling
 - **💰 Completely FREE:** No subscriptions, no ads - built for farmers worldwide
 - **🔓 Open Source:** Well-documented for learning and contribution
 
@@ -100,6 +115,39 @@ Supabase (Storage + Database)
 - **Groq API Account** (free tier: 30 requests/minute)
 - **Supabase Account** (free tier: 500MB storage)
 - **Android Studio/Xcode** (for mobile development)
+
+## 🚀 Quick Start
+
+### 🌐 Try Web Version (Instant Access)
+**Live Demo:** [cropguard-ai.vercel.app](https://cropguard-ai.vercel.app)
+
+1. **Upload Image** - Drag & drop or click to upload JPEG/PNG
+2. **Select Plant** - Choose from dropdown or enter custom plant name  
+3. **Get Results** - Instant AI analysis with treatment recommendations
+
+### 📱 Download Mobile App
+- **Android APK:** [Download Latest Release](https://github.com/sibikrishna/cropguard-ai/releases/latest/download/app-release.apk)
+- **iOS:** Coming soon (requires macOS to build)
+
+### 🔧 Build from Source (Developers)
+**Quick Setup:**
+```bash
+# Clone repository
+git clone https://github.com/sibikrishna/cropguard-ai.git
+cd cropguard-ai
+
+# Backend setup
+cd backend
+pip install -r requirements.txt
+python -m http.server 8000
+
+# Mobile app setup
+cd ../mobile
+flutter pub get
+flutter run
+```
+
+📋 **Full build instructions:** [build_mobile_app.md](build_mobile_app.md)
 
 ## 🚀 Installation & Setup
 

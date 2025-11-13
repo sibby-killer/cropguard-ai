@@ -77,34 +77,38 @@ class GroqDiseaseDetector:
     
     def _create_analysis_prompt(self, crop_type):
         """Create prompt for disease analysis"""
-        return f"""You are an expert plant pathologist. Analyze this {crop_type} plant image and identify any diseases.
+        crop_display = crop_type.title() if crop_type and crop_type.lower() != 'unknown' else 'plant'
+        
+        return f"""You are an expert plant pathologist. Analyze this {crop_display} image and identify any diseases.
 
 Provide your analysis in the following JSON format:
 {{
-    "disease_detected": "name of disease or 'Healthy'",
+    "disease_detected": "name of disease or 'Healthy Plant'",
     "confidence": confidence score between 0 and 1,
     "severity": "None/Mild/Moderate/Severe",
     "symptoms_observed": ["list", "of", "symptoms"],
     "recommendation": "brief treatment recommendation"
 }}
 
-Common {crop_type} diseases to look for:
-- Late Blight (dark water-soaked spots)
-- Early Blight (concentric ring spots)
-- Septoria Leaf Spot (small circular spots)
-- Bacterial Spot (small dark lesions)
-- Leaf Mold (yellowish spots with mold)
-- Mosaic Virus (mottled yellowing)
-- Healthy (no disease symptoms)
+For {crop_display}, look for common diseases including:
+- Fungal diseases (spots, blights, molds, rusts)
+- Bacterial diseases (lesions, wilts, spots)
+- Viral diseases (mosaic patterns, yellowing, deformities)
+- Nutrient deficiencies (chlorosis, necrosis)
+- Pest damage (holes, discoloration)
+- Environmental stress (burning, wilting)
 
 Focus on visible symptoms like:
-- Leaf discoloration or spots
-- Leaf curling or deformity
-- Mold or fungal growth
-- Stem lesions
-- Overall plant health
+- Leaf discoloration, spots, or patterns
+- Leaf curling, wilting, or deformity
+- Mold, fungal growth, or unusual textures
+- Stem or branch lesions
+- Overall plant health and vigor
+- Any unusual growths or discolorations
 
-Be specific about the disease name. If the plant looks healthy, say "Healthy Plant"."""
+Be specific about the disease name and provide practical treatment recommendations. 
+If the plant looks healthy, respond with "Healthy Plant".
+If you cannot identify a specific disease, describe the symptoms and suggest "Unknown Disease - Consult Expert"."""
     
     def _parse_analysis_result(self, result_text, crop_type):
         """

@@ -1,0 +1,99 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+        
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.16.0'
+        channel: 'stable'
+        
+    - name: Install dependencies
+      working-directory: mobile
+      run: flutter pub get
+      
+    - name: Analyze code
+      working-directory: mobile
+      run: flutter analyze
+      
+    - name: Run tests
+      working-directory: mobile
+      run: flutter test
+      
+    - name: Build APK (Debug)
+      working-directory: mobile
+      run: flutter build apk --debug
+      
+    - name: Build APK (Release)
+      working-directory: mobile
+      run: flutter build apk --release
+      
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: cropguard-ai-debug-apk
+        path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+        
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: cropguard-ai-release-apk
+        path: mobile/build/app/outputs/flutter-apk/app-release.apk
+        
+    - name: Create Release (if tag)
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          mobile/build/app/outputs/flutter-apk/app-release.apk
+        name: CropGuard AI ${{ github.ref_name }}
+        body: |
+          ## 🌱 CropGuard AI ${{ github.ref_name }}
+          
+          ### 📱 Download Mobile App
+          - **Android APK**: Attached to this release
+          - **Web Version**: [cropguard-ai.vercel.app](https://cropguard-ai.vercel.app)
+          
+          ### ✅ What's Included
+          - ✅ JPEG & PNG image support
+          - ✅ Custom plant name input
+          - ✅ Enhanced camera functionality
+          - ✅ AI-powered disease detection
+          - ✅ Treatment recommendations
+          
+          ### 📋 Installation Instructions
+          1. Download `app-release.apk` from this release
+          2. Enable "Install from unknown sources" on your Android device
+          3. Install the APK file
+          4. Open CropGuard AI and start scanning plants!
+          
+          ### 🔧 Build Information
+          - Flutter Version: 3.16.0
+          - Build Type: Release
+          - Target: Android (API 21+)
+          - Size: ~15-25MB
+          
+          **Need help?** Check our [documentation](https://github.com/sibikrishna/cropguard-ai#readme) or create an [issue](https://github.com/sibikrishna/cropguard-ai/issues/new).
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
